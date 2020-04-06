@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+echo "Cloning dependencies"
+git clone --depth=1 -j$(nproc --all) -b tr-10-caf https://github.com/ryu2374/android_kernel_xiaomi_msm8917-1 --single-branch triton && cd triton
+git clone https://github.com/Thagoo/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 -b lineage-17.0 gcc
+git clone https://github.com/Thagoo/AnyKernel3 AnyKernel
+echo "Done"
+GCC="$(pwd)/gcc/bin/aarch64-linux-android-"
+IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
+TANGGAL=$(date +"%y%m%d-%H%M")
+START=$(date +"%s")
+export ARCH=arm64
+export SUBARCH=arm64
+export KBUILD_BUILD_USER=Ryu
+export KBUILD_BUILD_HOST=circle
+git config --global user.email "marizky93@gmail.com"
+git config --global user.name "ryu2374"
+# sticker plox
+function sticker() {
+    curl -s -X POST "https://api.telegram.org/bot$token/sendSticker" \
+        -d sticker="CAADAQADHAADvi-SJce2yqOIKPDcFgQ" \
+        -d chat_id=$chat_id
+}
+# Send info plox channel
+function sendinfo() {
+    curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
+        -d chat_id="$chat_id" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=html" \
+        -d text="<b>LightBorn Kernel CI</b>%0AStarted on: <code>Circle CI/CD</code>%0ADevice: <b>Xiaomi Redmi 4A</b> (rolex)%0ABranch: <code>$(git rev-parse --abbrev-ref HEAD)</code>%0AUnder Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>aarch64-elf-gcc (Linaro GCC) 7.5.0</code>%0ADate: <code>$(date)</code>%0A<b>Build Status:</b> #Nightly"
+}
+# Push kernel to channel
+function push() {
+    cd AnyKernel || exit 1
+    ZIP=$(echo *.zip)
+    curl -F document=@$ZIP "https://api.telegram.org/bot$token/sendDocument" \
+        -F chat_id="$chat_id" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>Xiaomi Redmi 4A (rolex)</b>"
+}
+# Fin Error
+function finerr() {
+    curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
+        -d chat_id="$chat_id" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=markdown" \
+        -d text="Build throw an error(s)"
+    exit 1
+}
+# Compile plox
+function compile() {
+    make -s -C "$(pwd)" -j"$(nproc)" O=out rolex_defconfig
+    make -C "$(pwd)" CROSS_COMPILE="${GCC}" O=out -j"$(nproc)"
+    if ! [ -a "$IMAGE" ]; then
+        finerr
+        exit 1
+    fi
+    cp out/arch/arm64/boot/Image.gz-dtb AnyKernel
+}
+# Zipping
+function zipping() {
+    cd AnyKernel || exit 1
+    zip -r9 Elysium-beta-rolex-${TANGGAL}.zip *
+    cd .. #well
+}
+sticker
+sendinfo
+compile
+zipping
+END=$(date +"%s")
+DIFF=$(($END - $START))
+push
