@@ -8,7 +8,7 @@ GCC="$(pwd)/gcc/bin/aarch64-linux-android-"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 TANGGAL=$(date +"%y%m%d-%H%M")
 START=$(date +"%s")
-export KBUILD_COMPILER_STRING="$(${KERNEL_DIR}/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
+export KBUILD_COMPILER_STRING="$(${KERNEL_DIR}/gcc/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER=Ryu
@@ -27,7 +27,7 @@ function sendinfo() {
         -d chat_id="$chat_id" \
         -d "disable_web_page_preview=true" \
         -d "parse_mode=html" \
-        -d text="<b>New build available!</b>%0Device: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>v$KERNEL</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALatest Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>${KBUILD_COMPILER_STRING}</code>%0ADate: <code>$(date)</code>%0ABuild Status: #Beta"
+        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>v$KERNEL</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALatest Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>${KBUILD_COMPILER_STRING}</code>%0ADate: <code>$(date)</code>%0ABuild Status: #Beta"
 }
 # Push kernel to channel
 function push() {
@@ -65,10 +65,10 @@ function zipping() {
     cd .. #well
 }
 sticker
+KERNEL=$(cat out/.config | grep Linux/arm64 | cut -d " " -f3)
 sendinfo
 compile
 zipping
-KERNEL=$(cat out/.config | grep Linux/arm64 | cut -d " " -f3)
 END=$(date +"%s")
 DIFF=$(($END - $START))
 push
