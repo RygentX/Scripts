@@ -3,12 +3,10 @@ echo "Cloning dependencies"
 git clone https://github.com/Thagoo/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 -b lineage-17.0 gcc
 git clone https://github.com/Thagoo/AnyKernel3 AnyKernel
 echo "Done"
-KERNEL_DIR=$(pwd)
 GCC="$(pwd)/gcc/bin/aarch64-linux-android-"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
-TANGGAL=$(date +"%y%m%d-%H%M")
+TANGGAL=$(date +"%H%M-%d%m%yy")
 START=$(date +"%s")
-export KBUILD_COMPILER_STRING="$(${KERNEL_DIR}/gcc/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER=Ryu
@@ -18,7 +16,7 @@ git config --global user.name "ryu2374"
 # sticker plox
 function sticker() {
     curl -s -X POST "https://api.telegram.org/bot$token/sendSticker" \
-        -d sticker="CAADAQADHAADvi-SJce2yqOIKPDcFgQ" \
+        -d sticker="CAACAgUAAx0CTxcDWAACAytejG8rgsUESQNeOxGqbajvPF8xuAACBAADIgqRPYEwu6AO2jc8GAQ" \
         -d chat_id=$chat_id
 }
 # Send info plox channel
@@ -27,7 +25,7 @@ function sendinfo() {
         -d chat_id="$chat_id" \
         -d "disable_web_page_preview=true" \
         -d "parse_mode=html" \
-        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>v$KERNEL</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALatest Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>${KBUILD_COMPILER_STRING}</code>%0ADate: <code>$(date)</code>%0ABuild Status: #Beta"
+        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : v3.18.140%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALast Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>gcc version 4.9.x 20150123 (prerelease) (GCC)</code>%0AStart: <code>$(date)</code>%0ABuild Status: #Beta"
 }
 # Push kernel to channel
 function push() {
@@ -61,11 +59,10 @@ function compile() {
 # Zipping
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 Elysium-beta-rolex-${TANGGAL}.zip *
+    zip -r9 Elysium-rolex-${TANGGAL}.zip *
     cd .. #well
 }
 sticker
-KERNEL=$(cat out/.config | grep Linux/arm64 | cut -d " " -f3)
 sendinfo
 compile
 zipping
