@@ -5,7 +5,7 @@ jobs:
       - image: ryu2374/docker:latest
     steps:
       - run: apt-get -y update && apt-get -y upgrade
-      - run: git clone --depth=1 -j$(nproc --all) -b hitotsu https://github.com/z4nyx/android_kernel_xiaomi_msm8917 --single-branch .
+      - run: git clone --depth=1 -j$(nproc --all) -b tr-10-caf https://github.com/Thagoo/Triton_kernel_xiaomi_msm8917 --single-branch .
       - run: wget https://raw.githubusercontent.com/ryu2374/Scripts/master/circle
       - run: chmod +x circle
       - run: bash circle
