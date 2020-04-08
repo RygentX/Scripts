@@ -5,7 +5,7 @@ git clone https://github.com/Thagoo/AnyKernel3 AnyKernel
 echo "Done"
 GCC="$(pwd)/gcc/bin/aarch64-linux-android-"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
-TANGGAL=$(date +"%H%M-%d%m%yy")
+TANGGAL=$(TZ=Asia/Jakarta date +'%H%M-%d%m%y')
 START=$(date +"%s")
 export ARCH=arm64
 export SUBARCH=arm64
@@ -25,7 +25,7 @@ function sendinfo() {
         -d chat_id="$chat_id" \
         -d "disable_web_page_preview=true" \
         -d "parse_mode=html" \
-        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : v3.18.140%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALast Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>gcc version 4.9.x 20150123 (prerelease) (GCC)</code>%0AStart: <code>$(date)</code>%0ABuild Status: #Beta"
+        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>v3.18.140</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALast Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>gcc version 4.9.x 20150123 (prerelease) (GCC)</code>%0AStart: <code>$(date)</code>%0ABuild Status: #Beta"
 }
 # Push kernel to channel
 function push() {
@@ -35,7 +35,7 @@ function push() {
         -F chat_id="$chat_id" \
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
-        -F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>Xiaomi Redmi 4A (rolex)</b>"
+        -F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s)"
 }
 # Fin Error
 function finerr() {
