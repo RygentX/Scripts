@@ -7,6 +7,8 @@ GCC="$(pwd)/gcc/bin/aarch64-linux-android-"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 TANGGAL=$(TZ=Asia/Jakarta date +'%H%M-%d%m%y')
 START=$(date +"%s")
+kernel_ver=$(cat $(pwd)/out/.config | grep Linux/arm64 | cut -d " " -f3)
+toolchain_ver=$(cat $(pwd)/out/include/generated/compile.h | grep LINUX_COMPILER | cut -d '"' -f2)
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER=Ryu
@@ -25,7 +27,7 @@ function sendinfo() {
         -d chat_id="$chat_id" \
         -d "disable_web_page_preview=true" \
         -d "parse_mode=html" \
-        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>v3.18.140</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALast Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>gcc version 4.9.x 20150123 (prerelease) (GCC)</code>%0AStart: <code>$(date)</code>%0ABuild Status: #Beta"
+        -d text="<b>New build available!</b>%0ADevice: <code>Xiaomi Redmi 4A (rolex)</code>%0ALinux version : <code>$kernel_ver</code>%0ABranch : <code>$(git rev-parse --abbrev-ref HEAD)</code>%0ALast Commit: <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AToolchain: <code>$toolchain_ver</code>%0AStart: <code>$(date)</code>%0ABuild Status: #Experimental"
 }
 # Push kernel to channel
 function push() {
@@ -59,7 +61,7 @@ function compile() {
 # Zipping
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 Elysium-rolex-${TANGGAL}.zip *
+    zip -r9 DaggerX-rolex-${TANGGAL}.zip *
     cd .. #well
 }
 sticker
